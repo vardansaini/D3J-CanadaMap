@@ -25,5 +25,6 @@
 
 .county-boundary:hover,
 .state:hover {
-  fill: #002b5b;
+  stroke: #000;
+  stroke-width: 2px;
 }

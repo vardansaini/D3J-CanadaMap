@@ -1,4 +1,5 @@
 import "./App.css";
+import css from "App.css";
 import "react-toastify/dist/ReactToastify.css";
 import React from "react";
 
@@ -34,17 +35,16 @@ function App() {
   }, [onResize]);
 
   const height = width * mapRatio - margin.top - margin.bottom;
-
-  const pathGenerator = React.useMemo(() => {
+  const projection = React.useMemo(() => {
     // Creating projection, it's best to use 'geoAlbersUsa' projection
     // if you're rendering USA map and for other maps use 'geoMercator'.
-    const projection = d3
-      .geoMercator()
-      .fitSize([width / 1.1, height / 1.1], stateData);
-
-    // Creating path generator from the projecttion created above.
-    return d3.geoPath().projection(projection);
+    return d3.geoMercator().fitSize([width / 1.1, height / 1.1], stateData);
   }, [width, height]);
+
+  const pathGenerator = React.useMemo(() => {
+    // Creating path generator from the projection created above.
+    return d3.geoPath().projection(projection);
+  }, [projection]);
 
   function handleZoom(event, feature) {
     toast.info(
@@ -116,11 +116,62 @@ function App() {
                   <path
                     key={feature.properties.name}
                     d={pathGenerator(feature)}
-                    text={feature.properties.name}
                     className="state"
                     fill={colorGenerator(feature)}
                     onClick={(e) => handleZoom(e, feature)}
                   ></path>
+                );
+              })}
+            </g>
+            <g id="labels">
+              {stateData.features.map((feature) => {
+                // console.log(feature.geometry.coordinates);
+                var xc = 0;
+                var yc = 0;
+                for (let i = 0; i < feature.geometry.coordinates.length; i++) {
+                  xc += feature.geometry.coordinates[i][0];
+                  yc += feature.geometry.coordinates[i][1];
+                }
+                console.log(xc, yc);
+                console.log(
+                  "this is len: ",
+                  feature.geometry.coordinates.length
+                );
+                xc = xc / feature.geometry.coordinates.length;
+                yc = yc / feature.geometry.coordinates.length;
+                console.log(xc, yc);
+                const coords = [xc, yc];
+                const [x, y] = projection(coords);
+                return (
+                  <text x={x} y={y}>
+                    {feature.properties.name === "British Columbia"
+                      ? "BC"
+                      : feature.properties.name === "Newfoundland and Labrador"
+                      ? "NL"
+                      : feature.properties.name === "Northwest Territories"
+                      ? "NT"
+                      : feature.properties.name === "Prince Edward Island"
+                      ? "PE"
+                      : feature.properties.name === "Nova Scotia"
+                      ? "NS"
+                      : feature.properties.name === "New Brunswick"
+                      ? "NB"
+                      : feature.properties.name === "Quebec"
+                      ? "QC"
+                      : feature.properties.name === "Ontario"
+                      ? "ON"
+                      : feature.properties.name === "Manitoba"
+                      ? "MB"
+                      : feature.properties.name === "Saskatchewan"
+                      ? "SK"
+                      : feature.properties.name === "Alberta"
+                      ? "AB"
+                      : feature.properties.name === "Yukon"
+                      ? "YT"
+                      : feature.properties.name === "Nunavut"
+                      ? "NU"
+                      : null}
+                  </text>
                 );
               })}
             </g>

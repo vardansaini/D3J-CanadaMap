@@ -1,13 +1,17 @@
 const path = require("path");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/index.jsx",
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        use: "js-loader",
+        loader: 'babel-loader',
+        // use: "ts-loader",
         exclude: /node_modules/,
+        options: {
+          presets: ['es2015']
+      }
       },
       {
         test: /\.css$/i,
